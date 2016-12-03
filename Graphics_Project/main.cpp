@@ -43,7 +43,7 @@ bool init() {
 	}
 
 	/** 设置摄像机 */
-	m_Camera.setCamera(0, 0, 8, 0, 0, 0, 0, 1, 0);
+	m_Camera.setCamera(0, 0, 2, 0, 0, 0, 1, 1, 0);
 
 	return true;                                        /**< 成功返回 */
 }
@@ -60,8 +60,8 @@ void updateView(int width, int height)
 
 	float whRatio = (GLfloat)width / (GLfloat)height;
 
-	gluPerspective(45, 1, 1, 100);
-	
+	//gluPerspective(45, 1, 1, 100);
+	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 1.0f, 4000.0f); //设置不合理的话 不能看看见全部的skybox
 
 	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
 }
@@ -81,10 +81,24 @@ void reshape(int width, int height)
 
 void idle()
 {
+	m_Camera.setViewByMouse();
+	m_Camera.setLook();
 	glutPostRedisplay();
 }
 
-
+void key(unsigned char key, int x, int y) {
+	switch (key)
+	{
+	case 'p':m_Camera.setSpeed(0.2f); break;
+	case 'w':m_Camera.moveCamera(m_Camera.getSpeed()); break;
+	case 's':m_Camera.moveCamera(-m_Camera.getSpeed()); break;
+	case 'a':m_Camera.yawCamera(-m_Camera.getSpeed()); break;
+	case 'd':m_Camera.yawCamera(m_Camera.getSpeed()); break;
+	case 'q':exit(0);
+	default:
+		break;
+	}
+}
 
 
 void getFPS()
@@ -144,7 +158,9 @@ void redraw()
 	glRotatef(-90, 1, 0, 0);
 	glScalef(0.2, 0.2, 0.2);
 
-
+	glPushMatrix();
+	glutSolidCube(1);
+	glPopMatrix();
 
 										//	Gen3DObjectList();
 	m_SkyBox.render();
