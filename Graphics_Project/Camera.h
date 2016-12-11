@@ -38,8 +38,6 @@ public:
 	/** 旋转摄像机方向 */
 	void rotateView(float angle, float X, float Y, float Z);
 
-	/** 根据鼠标设置摄像机观察方向 */
-	void setViewByMouse();
 
 	/** 左右摄像机移动 */
 	void yawCamera(float speed);

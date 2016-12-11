@@ -2,8 +2,6 @@
 Camera m_Camera;
 int wHeight = 0;
 int wWidth = 0;
-int lastMouseX = wHeight>>1;
-int lastMouseY = wHeight>>1;
 
 int wPositionX = 0;
 int wPositionY = 0;
@@ -17,12 +15,6 @@ void MouseMove(int x, int y)   //无点击的鼠标移动
 	float angleY = 0.0f;							  /**< 摄像机左右旋转角度 */
 	float angleZ = 0.0f;		                      /**< 摄像机上下旋转角度 */
 	static float currentRotX = 0.0f;
-
-	/** 得到当前鼠标位置 */
-	//GetCursorPos(&mousePos);
-	//ShowCursor(TRUE);
-
-
 
 	mousePos.x = x;
 	mousePos.y = y;
@@ -85,7 +77,4 @@ void MouseMove(int x, int y)   //无点击的鼠标移动
 	/** 总是左右旋转摄像机 */
 	m_Camera.rotateView(angleY, 0, 1, 0);
 
-
-	int lastMouseX = x;
-	int lastMouseY = y;
 }

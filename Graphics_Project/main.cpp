@@ -60,31 +60,37 @@ void updateView(int width, int height)
 	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
 	glLoadIdentity();									// Reset The Projection Matrix
 
-	float whRatio = (GLfloat)width / (GLfloat)height;
+	float whRatio = (float)width / (height ? height : 1);
 
 	//gluPerspective(45, 1, 1, 100);
-	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 1.0f, 4000.0f); //设置不合理的话 不能看看见全部的skybox
+	gluPerspective(75.0f, whRatio, 1.0f, 5000.0f); //设置不合理的话 不能看看见全部的skybox
 
 	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
+	glLoadIdentity(); //这里必须有
 }
 
 void reshape(int width, int height)
 {
-	if (height == 0)										// Prevent A Divide By Zero By
+	if (height == 0)						// Prevent A Divide By Zero By
 	{
-		height = 1;										// Making Height Equal One
+		height = 1;					// Making Height Equal One
 	}
 
 	wHeight = height;
 	wWidth = width;
 
-	updateView(wHeight, wWidth);
+	glViewport(0, 0, width, height);		/**< 重新设置视口 */
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 1.0f, 4000.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity(); //这个不能缺少
 }
 
 void idle()
 {
 	//m_Camera.setViewByMouse();
-	
+	//Sleep(10);
 	glutPostRedisplay();
 }
 
@@ -147,28 +153,27 @@ void redraw()
 	glutWarpPointer(wWidth / 2, wHeight / 2);  //这个函数必须放在这里，不能放在mousefunc（）里面，否则会
 	//使得绘制暂停
 
+	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 
 	m_Camera.setLook();			// 场景（0，0，0）的视点中心 (0,5,50)，Y轴向上
 
-	
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
-	//	glTranslatef(0.0f, 0.0f,-6.0f);			// Place the triangle at Center
-	//glRotatef(fRotate, 0, 1.0f, 0);			// Rotate around Y axis
-	//glRotatef(-90, 1, 0, 0);
-	//glScalef(0.2, 0.2, 0.2);
 
 	glPushMatrix();
 	glutSolidCube(1);
 	glPopMatrix();
 
-										//	Gen3DObjectList();
+	//绘制skyBox
+	glPushMatrix();
+	glScalef(3.0f, 3.0f, 3.0f);
 	m_SkyBox.render();
+	glPopMatrix();
+
+
 
 	if (bAnim) fRotate += 0.5f;
 
@@ -176,13 +181,11 @@ void redraw()
 
 	glutSwapBuffers();
 }
-void mouse() {
-	m_Camera.setViewByMouse();
-}
+
 int main(int argc, char *argv[])
 {
 	wHeight = 720;
-	wWidth = 720;
+	wWidth = 1280;
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -192,9 +195,9 @@ int main(int argc, char *argv[])
 		wPositionX = (cx - wWidth) >> 1;
 		wPositionY = (cy - wHeight) >> 1;
 		glutInitWindowPosition(wPositionX, wPositionY);
-	}
+	}//将窗口设置在屏幕中心
 	glutInitWindowSize(wWidth, wHeight);
-	
+
 	int windowHandle = glutCreateWindow("Simple GLUT App");
 	//glutFullScreen();
 	init();
