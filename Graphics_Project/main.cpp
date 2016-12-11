@@ -11,7 +11,7 @@
 
 bool    m_RenderMode;		          /**< 绘制模式 */
 CSkyBox m_SkyBox;
-Camera m_Camera;
+extern Camera m_Camera;
 
 float fTranslate;
 float fRotate;
@@ -22,8 +22,10 @@ bool bPersp = false;
 bool bAnim = false;
 bool bWire = false;
 
-int wHeight = 0;
-int wWidth = 0;
+extern int wHeight;//窗口的高度和宽度
+extern int wWidth;
+extern int wPositionX;//窗口设置的原点
+extern int wPositionY;
 
 bool init() {
 	/** 用户自定义的初始化过程 */
@@ -43,7 +45,7 @@ bool init() {
 	}
 
 	/** 设置摄像机 */
-	m_Camera.setCamera(0, 0, 2, 0, 0, 0, 1, 1, 0);
+	m_Camera.setCamera(0, 0, 2, 0, 0, 0, 0, 1, 0);
 
 	return true;                                        /**< 成功返回 */
 }
@@ -81,8 +83,8 @@ void reshape(int width, int height)
 
 void idle()
 {
-	m_Camera.setViewByMouse();
-	m_Camera.setLook();
+	//m_Camera.setViewByMouse();
+	
 	glutPostRedisplay();
 }
 
@@ -141,6 +143,9 @@ void getFPS()
 
 void redraw()
 {
+	/** 设置鼠标位置在窗口中心 */
+	glutWarpPointer(wWidth / 2, wHeight / 2);  //这个函数必须放在这里，不能放在mousefunc（）里面，否则会
+	//使得绘制暂停
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();									// Reset The Current Modelview Matrix
@@ -155,8 +160,8 @@ void redraw()
 
 	//	glTranslatef(0.0f, 0.0f,-6.0f);			// Place the triangle at Center
 	//glRotatef(fRotate, 0, 1.0f, 0);			// Rotate around Y axis
-	glRotatef(-90, 1, 0, 0);
-	glScalef(0.2, 0.2, 0.2);
+	//glRotatef(-90, 1, 0, 0);
+	//glScalef(0.2, 0.2, 0.2);
 
 	glPushMatrix();
 	glutSolidCube(1);
@@ -176,15 +181,27 @@ void mouse() {
 }
 int main(int argc, char *argv[])
 {
+	wHeight = 720;
+	wWidth = 720;
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-	glutInitWindowSize(480, 480);
+	{
+		int cx = glutGet(GLUT_SCREEN_WIDTH);
+		int cy = glutGet(GLUT_SCREEN_HEIGHT);
+		wPositionX = (cx - wWidth) >> 1;
+		wPositionY = (cy - wHeight) >> 1;
+		glutInitWindowPosition(wPositionX, wPositionY);
+	}
+	glutInitWindowSize(wWidth, wHeight);
+	
 	int windowHandle = glutCreateWindow("Simple GLUT App");
-
+	//glutFullScreen();
 	init();
 	glutDisplayFunc(redraw);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(key);
+	glutPassiveMotionFunc(&MouseMove);//鼠标移动
 	glutIdleFunc(idle);
 
 

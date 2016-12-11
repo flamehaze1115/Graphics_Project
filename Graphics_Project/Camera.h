@@ -19,6 +19,9 @@ public:
 	Vector3 getPosition() { return m_Position; }
 	Vector3 getView() { return m_View; }
 	Vector3 getUpVector() { return m_UpVector; }
+	void setPosition(Vector3 Position) { m_Position = Position; }
+	void setView(Vector3 View) { m_View = View; }
+	void setUpVector(Vector3 UpVector) { m_UpVector = UpVector; }
 	float   getSpeed() { return m_Speed; }
 
 	/** …Ë÷√ÀŸ∂» */
