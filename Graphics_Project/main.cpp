@@ -63,7 +63,7 @@ void updateView(int width, int height)
 	float whRatio = (float)width / (height ? height : 1);
 
 	//gluPerspective(45, 1, 1, 100);
-	gluPerspective(75.0f, whRatio, 1.0f, 5000.0f); //设置不合理的话 不能看看见全部的skybox
+	gluPerspective(45.0f, whRatio, 1.0f, 5000.0f); //设置不合理的话 不能看看见全部的skybox
 
 	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
 	glLoadIdentity(); //这里必须有
@@ -107,6 +107,7 @@ void key(unsigned char key, int x, int y) {
 		break;
 	}
 }
+
 
 
 void getFPS()

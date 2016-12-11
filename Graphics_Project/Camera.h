@@ -44,7 +44,6 @@ public:
 
 	/** 前后移动摄像机 */
 	void moveCamera(float speed);
-
 	/** 放置摄像机 */
 	void setLook();
 
