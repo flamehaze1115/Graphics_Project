@@ -8,10 +8,12 @@
 #include"stdafx.h"
 #include"Vector.h"
 #include"Control.h"
+#include"Terrain.h"
 
 bool    m_RenderMode;		          /**< 绘制模式 */
 CSkyBox m_SkyBox;
 extern Camera m_Camera;
+CTerrain m_Terrain;
 
 float fTranslate;
 float fRotate;
@@ -43,9 +45,15 @@ bool init() {
 		MessageBox(NULL, L"初始化天空失败!", L"错误", MB_OK);
 		exit(0);
 	}
+	/** 初始化地形 */
+	if (!m_Terrain.init())
+	{
+		MessageBox(NULL, L"初始化地形失败!", L"错误", MB_OK);
+		exit(0);
+	}
 
 	/** 设置摄像机 */
-	m_Camera.setCamera(0, 0, 2, 0, 0, 0, 0, 1, 0);
+	m_Camera.setCamera(500, 35, 400, 501, 35, 400, 0, 1, 0);
 
 	return true;                                        /**< 成功返回 */
 }
@@ -97,7 +105,7 @@ void idle()
 void key(unsigned char key, int x, int y) {
 	switch (key)
 	{
-	case 'p':m_Camera.setSpeed(0.2f); break;
+	case 'p':m_Camera.setSpeed(1.0f); break;
 	case 'w':m_Camera.moveCamera(m_Camera.getSpeed()); break;
 	case 's':m_Camera.moveCamera(-m_Camera.getSpeed()); break;
 	case 'a':m_Camera.yawCamera(-m_Camera.getSpeed()); break;
@@ -106,6 +114,26 @@ void key(unsigned char key, int x, int y) {
 	default:
 		break;
 	}
+
+	/** 根据地形高度更新摄像机 */
+	Vector3 vPos = m_Camera.getPosition();                  /**< 得到当前摄像机位置 */
+	Vector3 vNewPos = vPos;
+
+
+	/** 设置摄像机高度为 地形高度 + 10 */
+	vNewPos.y = (float)m_Terrain.getAveHeight(vPos.x, vPos.z) + 10;
+
+	/** 得到高度差值 */
+	float temp = vNewPos.y - vPos.y;
+
+	/** 更新摄像机方向 */
+	Vector3 vView = m_Camera.getView();
+	vView.y += temp;
+
+	/** 设置摄像机 */
+	m_Camera.setCamera(vNewPos.x, vNewPos.y, vNewPos.z,
+		vView.x, vView.y, vView.z,
+		0, 1, 0);
 }
 
 
@@ -169,10 +197,12 @@ void redraw()
 	glPopMatrix();
 
 	//绘制skyBox
-	glPushMatrix();
-	glScalef(3.0f, 3.0f, 3.0f);
+
 	m_SkyBox.render();
-	glPopMatrix();
+
+	//绘制地面
+
+	m_Terrain.render();
 
 
 

@@ -96,7 +96,10 @@ void Camera::rotateView(float angle, float x, float y, float z)
 void Camera::yawCamera(float speed)
 {
 	Vector3 yaw;
+	Vector3 oldPos, oldView;
 	Vector3 cross = m_View - m_Position;
+	oldPos = m_Position;
+	oldView = m_View;
 	cross = cross.crossProduct(m_UpVector);
 
 	///归一化向量
@@ -109,6 +112,20 @@ void Camera::yawCamera(float speed)
 	m_View.z += yaw.z * speed;
 
 
+	/** 进行边界检查和限定 */
+	if (m_View.x > MAP_WIDTH - 20 || m_View.x < 2 * CELL_WIDTH)
+	{
+		m_Position.x = oldPos.x;
+		m_View.x = oldView.x;
+	}
+
+	if (m_View.z > MAP_WIDTH - 20 || m_View.z < 2 * CELL_WIDTH)
+	{
+		m_Position.z = oldPos.z;
+		m_View.z = oldView.z;
+	}
+
+
 }
 
 /** 前后移动摄像机 */
@@ -117,7 +134,9 @@ void Camera::moveCamera(float speed)
 	/** 计算方向向量 */
 	Vector3 vector = m_View - m_Position;
 	vector = vector.normalize();         /**< 单位化 */
-
+	Vector3 oldPos, oldView;
+	oldPos = m_Position;
+	oldView = m_View;
 										 /** 更新摄像机 */
 	m_Position.x += vector.x * speed;    /**< 根据速度更新位置 */
 	m_Position.z += vector.z * speed;
@@ -128,7 +147,17 @@ void Camera::moveCamera(float speed)
 	m_View.z += vector.z * speed;
 
 	//需要添加范围控制，避免Camera下沉地面或者上天
+	if (m_View.x > MAP_WIDTH - 20 || m_View.x < 2 * CELL_WIDTH)
+	{
+		m_Position.x = oldPos.x;
+		m_View.x = oldView.x;
+	}
 
+	if (m_View.z > MAP_WIDTH - 20 || m_View.z < 2 * CELL_WIDTH)
+	{
+		m_Position.z = oldPos.z;
+		m_View.z = oldView.z;
+	}
 }
 
 
