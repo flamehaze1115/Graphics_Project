@@ -97,8 +97,6 @@ void reshape(int width, int height)
 
 void idle()
 {
-	//m_Camera.setViewByMouse();
-	//Sleep(10);
 	glutPostRedisplay();
 }
 
@@ -110,10 +108,10 @@ void key(unsigned char key, int x, int y) {
 	case 's':m_Camera.moveCamera(-m_Camera.getSpeed()); break;
 	case 'a':m_Camera.yawCamera(-m_Camera.getSpeed()); break;
 	case 'd':m_Camera.yawCamera(m_Camera.getSpeed()); break;
-	case 'q':exit(0);
 	default:
 		break;
 	}
+	if(key==27) exit(0);
 
 	/** 根据地形高度更新摄像机 */
 	Vector3 vPos = m_Camera.getPosition();                  /**< 得到当前摄像机位置 */
@@ -192,13 +190,11 @@ void redraw()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
-	glPushMatrix();
-	glutSolidCube(1);
-	glPopMatrix();
-
 	//绘制skyBox
-
+	glPushMatrix();
+	glScalef(2.0f, 2.0f, 2.0f);
 	m_SkyBox.render();
+	glPushMatrix();
 
 	//绘制地面
 
