@@ -82,6 +82,35 @@ bool CBMPLoader::LoadBitmap(const char *file)
 	return true;         /**< 成功返回 */
 }
 
+
+/** 载入位图文件，并创建纹理 */
+bool CBMPLoader::Load(const char* fileName)
+{
+	if (!LoadBitmap(fileName))
+	{
+		MessageBox(NULL, L"载入位图文件失败!", L"错误", MB_OK);
+		exit(0);
+	}
+
+	/** 生成纹理对象名称 */
+	glGenTextures(1, &ID);
+
+	/** 创建纹理对象 */
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	/** 控制滤波 */
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	/** 创建纹理 */
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, imageWidth,
+		imageHeight, GL_RGB, GL_UNSIGNED_BYTE,
+		image);
+	return true;
+}
+
 /** 释放内存 */
 void CBMPLoader::FreeImage()
 {

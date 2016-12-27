@@ -1,6 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
 // glutEx1.cpp : 定义控制台应用程序的入口点。
-//
-
 #include <glut.h>
 #include"BMPLoader.h"
 #include"Camera.h"
@@ -9,11 +8,13 @@
 #include"Vector.h"
 #include"Control.h"
 #include"Terrain.h"
+#include"Snow.h"
 
 bool    m_RenderMode;		          /**< 绘制模式 */
 CSkyBox m_SkyBox;
 extern Camera m_Camera;
 CTerrain m_Terrain;
+CSnow m_Snow;
 
 float fTranslate;
 float fRotate;
@@ -50,6 +51,13 @@ bool init() {
 	{
 		MessageBox(NULL, L"初始化地形失败!", L"错误", MB_OK);
 		exit(0);
+	}
+
+	/** 初始化雪花实例 */
+	if (!m_Snow.Init(5000))
+	{
+		MessageBox(NULL, L"雪花系统初始化失败!", L"错误", MB_OK);
+		exit(-1);
 	}
 
 	/** 设置摄像机 */
@@ -97,6 +105,8 @@ void reshape(int width, int height)
 
 void idle()
 {
+	//m_Camera.setViewByMouse();
+	//Sleep(10);
 	glutPostRedisplay();
 }
 
@@ -109,9 +119,9 @@ void key(unsigned char key, int x, int y) {
 	case 'a':m_Camera.yawCamera(-m_Camera.getSpeed()); break;
 	case 'd':m_Camera.yawCamera(m_Camera.getSpeed()); break;
 	default:
+		if (key == 27)exit(0);
 		break;
 	}
-	if(key==27) exit(0);
 
 	/** 根据地形高度更新摄像机 */
 	Vector3 vPos = m_Camera.getPosition();                  /**< 得到当前摄像机位置 */
@@ -174,11 +184,55 @@ void getFPS()
 	glEnable(GL_DEPTH_TEST);
 }
 
+void drawSnow() {
+	//绘制四个面的雪花
+
+	//绘制雪花
+	/** 设置混合因子获得半透明效果 */
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glEnable(GL_BLEND);				     /**< 启用混和 */
+
+	//正面
+	glPushMatrix();
+	//glTranslatef(0.0f, 0.0f, 4.0f);
+	//注意地面的法线位置是y轴方向
+	glTranslatef(m_Camera.getPosition().x, m_Camera.getPosition().y, m_Camera.getPosition().z);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	m_Snow.Render();
+	glPopMatrix();
+
+	//反面
+	glPushMatrix();
+	glTranslatef(m_Camera.getPosition().x, m_Camera.getPosition().y, m_Camera.getPosition().z);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	glRotatef(180, 0.0, 1.0, 0.0);
+	m_Snow.Render();
+	glPopMatrix();
+
+	//左边
+	glPushMatrix();
+	glTranslatef(m_Camera.getPosition().x, m_Camera.getPosition().y, m_Camera.getPosition().z);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	glRotatef(90, 0.0, 1.0, 0.0);
+	m_Snow.Render();
+	glPopMatrix();
+
+	//右边
+	glPushMatrix();
+	glTranslatef(m_Camera.getPosition().x, m_Camera.getPosition().y, m_Camera.getPosition().z);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+	glRotatef(270, 0.0, 1.0, 0.0);
+	m_Snow.Render();
+	glPopMatrix();
+
+	glDisable(GL_BLEND);   //关闭混合
+}
+
 void redraw()
 {
 	/** 设置鼠标位置在窗口中心 */
 	glutWarpPointer(wWidth / 2, wHeight / 2);  //这个函数必须放在这里，不能放在mousefunc（）里面，否则会
-	//使得绘制暂停
+											   //使得绘制暂停
 
 	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -190,17 +244,21 @@ void redraw()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
+	glPushMatrix();
+	glutSolidCube(1);
+	glPopMatrix();
+
 	//绘制skyBox
-	glPushMatrix();
-	glScalef(2.0f, 2.0f, 2.0f);
+
 	m_SkyBox.render();
-	glPushMatrix();
 
 	//绘制地面
 
 	m_Terrain.render();
 
-
+	//绘制雪墙
+	drawSnow();
+	
 
 	if (bAnim) fRotate += 0.5f;
 

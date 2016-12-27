@@ -14,6 +14,7 @@ public:
 	~CBMPLoader();
 
 	bool LoadBitmap(const char *filename); /**< 装载一个bmp文件 */
+	bool Load(const char* fileName);       /**< 载入位图并创建纹理 */
 	void FreeImage();                /**< 释放图像数据 */
 
 	unsigned int ID;                 /**< 生成纹理的ID号 */
